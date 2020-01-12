@@ -23,6 +23,10 @@ struct transaction {
     string description;
 };
 
+void check_valid_input(int argc, char **argv, string *user_file_name, string *bud_file_name);
+string get_file_name(string file_name = "");
+bool test_file(string file);
+
 int main(int argc, char **argv) {
     string username;
     string password;
@@ -36,20 +40,46 @@ int main(int argc, char **argv) {
     ifstream user_file;
     ifstream bud_file;
     int username_line;
-
-    while(argc != 3) {
-        cout << "Please execute using the following format: [executable] [user_file] [budget_file]" << endl;
-        prompt_user(argv[1], argv[2]);
-    }
-    while(/*file names not valid*/) {
-        cout << "One of your files does not exist." << endl;
-        prompt_user(argv[1], argv[2]);
-    }
+    
+    check_valid_input(argc, argv, &user_file_name, &bud_file_name);
+    cout << user_file_name << " " << bud_file_name << endl;
     
     return 0;
 }
 
-void prompt_user(char *file1, char *file2) {
-    cout << "Enter user file name" << endl;
-    cin >> 
+// Check for 3 command line arguments and for valid file names
+void check_valid_input(int argc, char **argv, string *user_file_name, string *bud_file_name) {
+    if(argc != 3) {
+        cout << "Wrong number of command line arguments, please enter user file name: ";
+        *user_file_name = get_file_name();
+        cout << "Now enter transaction file name: ";
+        *bud_file_name = get_file_name();
+    } else {
+        *user_file_name = get_file_name(argv[1]);
+        *bud_file_name = get_file_name(argv[2]);
+    }
+}
+
+string get_file_name(string file_name) {
+    string new_file_name = "";
+    // If given file name is valid, return it
+    if(test_file(file_name))
+        return file_name;
+    // Else, prompt for file name until valid
+    while(true) {
+        cin >> new_file_name;
+        if(test_file(new_file_name))
+            break;
+        else
+            cout << "Bad file name, please input again: ";
+    }
+    return new_file_name;
+}
+
+bool test_file(string file_name) {
+    ifstream test(file_name);
+    if(test) {
+        return true;
+    }
+    return false;
 }
