@@ -44,6 +44,17 @@ bool is_int(string word);
 int check_login(user current_user, user *user_arr, int num_users);
 void display_info(user current_user, budget *budget_arr, int num_buds);
 
+void sort(budget *budget_arr, int num_buds, user current_user);
+void sort_transactions(string sort_type, budget *budget_arr, int num_buds, user current_user);
+int get_user_budget(budget *budget_arr, budget &user_budget, int num_buds, user current_user);
+void alphebatize(budget budget, string sort_type);
+void swap_trans(transaction *xp, transaction *yp);
+
+void print_budget(budget budget) {
+    for(int i = 0; i < budget.num_transactions; i++)
+        cout << budget.t[i].category << endl;
+}
+
 int main(int argc, char **argv) {
     int num_users;
     int num_buds;
@@ -69,9 +80,88 @@ int main(int argc, char **argv) {
 
     user current_user = login(user_arr, num_users);
     display_info(current_user, budget_arr, num_buds);
+    sort(budget_arr, num_buds, current_user);
+
 
     return 0;
 }
+
+
+void sort(budget *budget_arr, int num_buds, user current_user) {
+    string sort_type = "0";
+    while(sort_type != "1" && sort_type != "2" && sort_type != "3" && sort_type != "4") {
+        getline(cin, sort_type);
+        if(sort_type == "1" || sort_type == "2" || sort_type == "3")
+            sort_transactions(sort_type, budget_arr, num_buds, current_user);
+        else if (sort_type == "4")
+            exit(EXIT_SUCCESS);
+        else
+            cout << "Invalid option. Enter a sorting option: By category (1), by date (2), by dollar amount (3), or exit the program (4): ";
+    }
+}
+
+void sort_transactions(string sort_type, budget *budget_arr, int num_buds, user current_user) {
+    budget user_budget;
+    int user_budget_index = get_user_budget(budget_arr, user_budget, num_buds, current_user);
+
+    // Sort by category
+    if(sort_type == "1")
+        alphebatize(user_budget, sort_type);
+    // Sort by date
+    else if(sort_type == "2")
+        alphebatize(user_budget, sort_type);
+    // Sort by dollar amount
+    else if(sort_type == "3")
+        alphebatize(user_budget, sort_type);
+
+    /* Only do this once copy budget array to separate budget array
+    // Replace budget in budget array with modified user budget
+    budget_arr[user_budget_index] = user_budget;
+    */
+}
+
+// Finds budget in budget arr with matching id to current user, modifies it, and returns index
+int get_user_budget(budget *budget_arr, budget &user_budget, int num_buds, user current_user) {
+    for(int i = 0; i < num_buds; i++) {
+        if(budget_arr[i].id == current_user.id) {
+            user_budget = budget_arr[i];
+            return i;
+        }
+    }
+    return -1;
+}
+
+// Sorts transactions within budget by sort_type
+void alphebatize(budget budget, string sort_type) {
+    for(int i = 0; i < budget.num_transactions - 1; i++) {
+        // Last i elements are already in place  
+        for (int j = 0; j < budget.num_transactions - i - 1; j++) {
+            if(sort_type == "1") {
+                // If first char of category in transaction is greater than first char of next transaction, swap
+                if(budget.t[j].category[0] > budget.t[j+1].category[0])
+                    swap_trans(&budget.t[j], &budget.t[j+1]);
+            }
+            else if(sort_type == "2") {
+                // If first char of date in transaction is greater than first char of next transaction, swap
+                if(budget.t[j].date[0] > budget.t[j+1].date[0])
+                    swap_trans(&budget.t[j], &budget.t[j+1]);
+            }
+            else if(sort_type == "3") {
+                // If amount in transaction is less than next, swap
+                if(budget.t[j].amount < budget.t[j+1].amount)
+                    swap_trans(&budget.t[j], &budget.t[j+1]);
+            }
+        }
+    }
+    print_budget(budget);
+}
+
+// Swaps two transaction objects
+void swap_trans(transaction *xp, transaction *yp) {  
+    transaction temp = *xp;  
+    *xp = *yp;  
+    *yp = temp;  
+}  
 
 // Check for 3 command line arguments and for valid file names
 void check_valid_input(int argc, char **argv, string *user_file_name, string *bud_file_name) {
@@ -251,4 +341,5 @@ void display_info(user current_user, budget *budget_arr, int num_buds) {
     cout << "Username: " << current_user.name << endl;
     cout << "ID#: " << current_user.id << endl;
     cout << "Current Account Balance: " << current_balance << endl;
+    cout << "Enter a sorting option: By category (1), by date (2), by dollar amount (3), or exit the program (4): ";
 }
