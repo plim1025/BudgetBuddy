@@ -26,24 +26,31 @@ struct transaction {
 void check_valid_input(int argc, char **argv, string *user_file_name, string *bud_file_name);
 string get_file_name(string file_name = "");
 bool test_file(string file);
+user* create_users(int users);
+budget* create_budgets(int budgets);
+transaction* create_transactions(int transactions);
+
 
 int main(int argc, char **argv) {
     string username;
     string password;
     int id;
+
+    int num_users;
     int num_buds;
-    int num_trans;
+
     budget *bud_arr;
     int login_attempt = 0;
     string user_file_name;
     string bud_file_name;
-    ifstream user_file;
-    ifstream bud_file;
     int username_line;
     
     check_valid_input(argc, argv, &user_file_name, &bud_file_name);
-    cout << user_file_name << " " << bud_file_name << endl;
-    
+    fstream user_file(user_file_name);
+    fstream bud_file(bud_file_name);
+    user_file >> num_users;
+    bud_file >> num_buds;
+
     return 0;
 }
 
@@ -60,6 +67,7 @@ void check_valid_input(int argc, char **argv, string *user_file_name, string *bu
     }
 }
 
+// If given file name exists, return it, otherwise prompt user for new file name until enter one that exists
 string get_file_name(string file_name) {
     string new_file_name = "";
     // If given file name is valid, return it
@@ -76,10 +84,23 @@ string get_file_name(string file_name) {
     return new_file_name;
 }
 
+// Tests given file name and returns true if it exists, false otherwise
 bool test_file(string file_name) {
     ifstream test(file_name);
     if(test) {
         return true;
     }
     return false;
+}
+
+user* create_users(int users) {
+
+}
+
+budget* create_budgets(int budgets) {
+
+}
+
+transaction* create_transactions(int transactions) {
+    
 }
