@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include <sstream>
 
 using namespace std;
 
@@ -37,7 +38,11 @@ void get_budget_data(budget* budget_arr, int num_buds, ifstream &file);
 void get_transaction_data(transaction* transaction_arr, int trans, ifstream &file);
 
 user login(user *user_arr, int num_users);
+int get_id();
+string get_password();
+bool is_int(string word);
 int check_login(user current_user, user *user_arr, int num_users);
+void display_info(user current_user, budget *budget_arr, int num_buds);
 
 int main(int argc, char **argv) {
     int num_users;
@@ -63,7 +68,7 @@ int main(int argc, char **argv) {
     get_budget_data(budget_arr, num_buds, budget_file);
 
     user current_user = login(user_arr, num_users);
-    cout << current_user.id << " " << current_user.name << " " << current_user.password << endl;
+    display_info(current_user, budget_arr, num_buds);
 
     return 0;
 }
@@ -144,11 +149,9 @@ void get_budget_data(budget* budget_arr, int num_buds, ifstream &file) {
     // For each transaction
     for(int i = 0; i < num_buds; i++) {
         // Add member variables to each budget
-        file >> id;
+        file >> id >> balance >> num_transactions;
         budget_arr[i].id = id;
-        file >> balance;
         budget_arr[i].balance = balance;
-        file >> num_transactions;
         budget_arr[i].num_transactions = num_transactions;
         transaction_arr[i] = new transaction[budget_arr[i].num_transactions];
         budget_arr[i].t = transaction_arr[i];
@@ -176,17 +179,16 @@ user login(user *user_arr, int num_users) {
     user current_user;
     int login_attempts = 0;
     int username_line = -1;
+    string temp_id;
 
     while(login_attempts < 3) {
-        cout << "Enter username: ";
-        getline(cin, current_user.name);
-        cout << "Enter password: ";
-        getline(cin, current_user.password);
+        current_user.id = get_id();
+        current_user.password = get_password();
         username_line = check_login(current_user, user_arr, num_users);
-        if(username_line != -1)
-            break;
-        else
+        if(username_line == -1)
             cout << "Incorrect, login info, try again." << endl;
+        else
+            break;
         login_attempts++;
     }
     // Exit program if login attempts exceeded 1
@@ -194,15 +196,59 @@ user login(user *user_arr, int num_users) {
         cout << "Too many login attempts. Exiting program..." << endl;
         exit(EXIT_FAILURE);
     }
-    current_user.id = user_arr[username_line].id;
+    // Set username into current_user based on line returns from check_login function
+    current_user.name = user_arr[username_line].name;
     return current_user;
+}
+
+// Fetches ID from user and returns it
+int get_id() {
+    string temp_id;
+    int id;
+    while(true) {
+            cout << "Enter ID#: ";
+            getline(cin, temp_id);   
+            if(is_int(temp_id))
+                break;
+            else
+                cout << "ID only contains digits, try again." << endl;
+        }
+    id = atoi(temp_id.c_str());
+    return id;
+}
+
+string get_password() {
+    string password;
+    cout << "Enter password: ";
+    getline(cin, password);
+    return password;
+}
+
+bool is_int(string word) {
+    for(int i = 0; i < word.length(); i++) {
+        if(word[i] < '0' || word[i] > '9')
+            return false;
+    }
+    return true;
 }
 
 // Returns line number that password and username were found on if they match, otherwise returns -1
 int check_login(user current_user, user *user_arr, int num_users) {
     for(int i = 0; i < num_users; i++) {
-        if(current_user.name == user_arr[i].name && current_user.password == user_arr[i].password)
+        if(current_user.id == user_arr[i].id && current_user.password == user_arr[i].password)
             return i;
     }
     return -1;
+}
+
+void display_info(user current_user, budget *budget_arr, int num_buds) {
+    // fetch current_balance from budget_arr
+    float current_balance;
+    for(int i = 0; i < num_buds; i++) {
+        if(current_user.id == budget_arr[i].id)
+            current_balance = budget_arr[i].balance;
+    }
+    cout << "Username: " << current_user.name << endl;
+    cout << "ID#: " << current_user.id << endl;
+    cout << "Current Account Balance: " << current_balance << endl;
 }
