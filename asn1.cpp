@@ -36,9 +36,11 @@ void get_user_data(user* user_arr, int num_users, ifstream &file);
 void get_budget_data(budget* budget_arr, int num_buds, ifstream &file);
 void get_transaction_data(transaction* transaction_arr, int trans, ifstream &file);
 
+user login(user *user_arr, int num_users);
+int check_login(user current_user, user *user_arr, int num_users);
+
 int main(int argc, char **argv) {
-    string username;
-    string password;
+    user current_user;
     int id;
 
     int num_users;
@@ -47,7 +49,6 @@ int main(int argc, char **argv) {
     user *user_arr;
     budget *budget_arr;
 
-    int login_attempt = 0;
     string user_file_name;
     string bud_file_name;
     int username_line;
@@ -66,8 +67,41 @@ int main(int argc, char **argv) {
     // Parse user/budget data and store in user/budget array
     get_user_data(user_arr, num_users, user_file);
     get_budget_data(budget_arr, num_buds, budget_file);
+    
+    login(user_arr, num_users);
 
     return 0;
+}
+
+user login(user *user_arr, int num_users) {
+    user current_user;
+    int login_attempts = 0;
+    int username_line;
+    
+    while(login_attempts < 3 && username_line != -1) {
+        cout << "Enter username: ";
+        cin >> current_user.name;
+        cout << "Enter password: ";
+        cin >> current_user.password;
+        username_line = check_login(current_user, user_arr, num_users);
+        login_attempts++;
+    }
+    // Exit program if login attempts exceeded 3
+    if(login_attempts > 3) {
+        cout << "Too many login attempts. Exiting program..." << endl;
+        exit(EXIT_FAILURE);
+    }
+    current_user.id = user_arr[username_line].id;
+    return current_user;
+}
+
+// Returns line number that password and username were found on if they match, otherwise returns -1
+int check_login(user current_user, user *user_arr, int num_users) {
+    for(int i = 0; i < num_users; i++) {
+        if(current_user.name == user_arr[i].name && current_user.password == user_arr[i].password)
+            return i + 1;
+    }
+    return -1;
 }
 
 void print_budget_data(budget* budget_arr, int num_buds) {
