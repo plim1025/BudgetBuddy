@@ -3,8 +3,8 @@
 #include <cstdlib>
 #include <sstream>
 
-#ifdef BUDGET_BUDDY.H
-#def BUDGET_BUDDY.H
+#ifndef BUDGET_BUDDY_H
+#define BUDGET_BUDDY_H
 
 using namespace std;
 

@@ -64,7 +64,7 @@ void sort(budget *budget_arr, int num_buds, user current_user) {
                 if(!file.is_open())
                     cout << "Bad file name, try again: ";
                 else
-                    break;    
+                    break;
             }
             write_budget(file, budget_arr, num_buds, user_budget, budget_index);
         }
@@ -76,29 +76,29 @@ void sort_transactions(string sort_type, budget user_budget, int num_buds, user 
     // Sort by category
     if(sort_type == "1") {
         for(int i = 0; i < user_budget.num_transactions - 1; i++) {
-            // Last i elements are already in place  
+            // Last i elements are already in place
             for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
                 // If first char of category in transaction is greater than first char of next transaction, swap
                 if(user_budget.t[j].category[0] > user_budget.t[j+1].category[0])
                     swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
             }
         }
-    }    
+    }
     // Sort by date
     else if(sort_type == "2") {
         for(int i = 0; i < user_budget.num_transactions - 1; i++) {
-            // Last i elements are already in place  
+            // Last i elements are already in place
             for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
                 // If first char of date in transaction is greater than first char of next transaction, swap
                 if(user_budget.t[j].date[0] > user_budget.t[j+1].date[0])
                     swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
             }
         }
-    }   
+    }
     // Sort by dollar amount
     else if(sort_type == "3") {
         for(int i = 0; i < user_budget.num_transactions - 1; i++) {
-            // Last i elements are already in place  
+            // Last i elements are already in place
             for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
                 // If amount in transaction is less than next, swap
                 if(user_budget.t[j].amount < user_budget.t[j+1].amount)
@@ -120,11 +120,11 @@ int get_user_budget(budget *budget_arr, budget &user_budget, int num_buds, user 
 }
 
 // Swaps two transaction objects
-void swap_trans(transaction *xp, transaction *yp) {  
-    transaction temp = *xp;  
-    *xp = *yp;  
-    *yp = temp;  
-}  
+void swap_trans(transaction *xp, transaction *yp) {
+    transaction temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
 
 // Check for 3 command line arguments and for valid file names
 void check_valid_input(int argc, char **argv, string *user_file_name, string *bud_file_name) {
@@ -204,8 +204,8 @@ void get_budget_data(budget* budget_arr, int num_buds, ifstream &file) {
         // Add member variables to each budget
         file >> id >> balance >> num_transactions;
         budget_arr[i].id = id;
-        float balance_rounded = (int)(balance * 100 + .5); 
-        budget_arr[i].balance = (float)balance_rounded / 100; 
+        float balance_rounded = (int)(balance * 100 + .5);
+        budget_arr[i].balance = (float)balance_rounded / 100;
         budget_arr[i].num_transactions = num_transactions;
         transaction_arr[i] = new transaction[budget_arr[i].num_transactions];
         budget_arr[i].t = transaction_arr[i];
@@ -223,7 +223,7 @@ void get_transaction_data(transaction* transactions_arr, int num_trans, ifstream
         // Add member variables to each transaction
         file >> date >> amount >> description >> category;
         transactions_arr[i].date = date;
-        float amount_rounded = (int)(amount * 100 + .5); 
+        float amount_rounded = (int)(amount * 100 + .5);
         transactions_arr[i].amount = (float)amount_rounded / 100;
         transactions_arr[i].amount = amount;
         transactions_arr[i].description = description;
@@ -263,7 +263,7 @@ int get_id() {
     int id;
     while(true) {
             cout << "Enter ID#: ";
-            getline(cin, temp_id);   
+            getline(cin, temp_id);
             if(is_int(temp_id))
                 break;
             else
