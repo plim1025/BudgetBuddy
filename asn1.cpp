@@ -45,15 +45,13 @@ int check_login(user current_user, user *user_arr, int num_users);
 void display_info(user current_user, budget *budget_arr, int num_buds);
 
 void sort(budget *budget_arr, int num_buds, user current_user);
-void sort_transactions(string sort_type, budget *budget_arr, int num_buds, user current_user);
+void sort_transactions(string sort_type, budget budget_arr, int num_buds, user current_user);
 int get_user_budget(budget *budget_arr, budget &user_budget, int num_buds, user current_user);
 void alphebatize(budget budget, string sort_type);
 void swap_trans(transaction *xp, transaction *yp);
-
-void print_budget(budget budget) {
-    for(int i = 0; i < budget.num_transactions; i++)
-        cout << budget.t[i].category << endl;
-}
+void print_budget(budget budget);
+void write_budget(ofstream &file, budget *budget_arr, budget user_budget, int num_buds);
+budget* copy_budget_arr(budget *budget_arr, int num_buds);
 
 int main(int argc, char **argv) {
     int num_users;
@@ -82,42 +80,112 @@ int main(int argc, char **argv) {
     display_info(current_user, budget_arr, num_buds);
     sort(budget_arr, num_buds, current_user);
 
-
     return 0;
 }
 
+void print_budget(budget budget) {
+    cout << endl;
+    for(int i = 0; i < budget.num_transactions; i++)
+        cout << budget.t[i].date << " " << budget.t[i].amount << " " << budget.t[i].description << " " << budget.t[i].category << endl;
+}
+
+void write_budget(ofstream &file, budget *budget_arr, int num_buds, budget user_budget, int budget_index) {
+    // Make copy of budget array
+    budget *budget_arr_copy = copy_budget_arr(budget_arr, num_buds);
+    // Swap modified user_budget into copy of budget array
+    budget_arr[budget_index] = user_budget;
+    // Write copied budget array into file
+    file << num_buds << endl;
+    for(int i = 0; i < num_buds; i++) {
+        file << budget_arr_copy[i].id << " " << budget_arr_copy[i].balance << " " << budget_arr_copy[i].num_transactions << endl;
+        //for(int j = 0; j < budget_arr_copy[i].num_transactions; j++)
+            //cout << budget_arr_copy.t[i].date << " " << budget_arr_copy.t[i].amount << " " << budget_arr_copy.t[i].description << " " << budget_arr_copy.t[i].category << endl;
+    }
+}
+
+// Returns copy of given budget_arr
+budget* copy_budget_arr(budget *budget_arr, int num_buds) {
+    budget *budget_arr_copy = new budget[num_buds];
+    for(int i = 0; i < num_buds; i++) {
+        budget temp = budget_arr[i];
+        budget_arr_copy[i] = temp;
+    }
+    return budget_arr_copy;
+}
 
 void sort(budget *budget_arr, int num_buds, user current_user) {
+    budget user_budget;
+    int budget_index = get_user_budget(budget_arr, user_budget, num_buds, current_user);
+
     string sort_type = "0";
     while(sort_type != "1" && sort_type != "2" && sort_type != "3" && sort_type != "4") {
         getline(cin, sort_type);
         if(sort_type == "1" || sort_type == "2" || sort_type == "3")
-            sort_transactions(sort_type, budget_arr, num_buds, current_user);
+            sort_transactions(sort_type, user_budget, num_buds, current_user);
         else if (sort_type == "4")
             exit(EXIT_SUCCESS);
         else
             cout << "Invalid option. Enter a sorting option: By category (1), by date (2), by dollar amount (3), or exit the program (4): ";
     }
+
+    string write_or_print = "0";
+    ofstream file;
+    while(write_or_print != "1" && write_or_print != "2") {
+        cout << "Do you want to print (1) these changes or write them to a new file (2)? ";
+        getline(cin, write_or_print);
+        if(write_or_print == "1")
+            print_budget(user_budget);
+        else if(write_or_print == "2") {
+            string file_name = "";
+            while(true) {
+                cout << "Enter a file name: ";
+                getline(cin, file_name);
+                file.open(file_name);
+                if(!file.is_open())
+                    cout << "Bad file name, try again: ";
+                else
+                    break;    
+            }
+            write_budget(file, budget_arr, num_buds, user_budget, budget_index);
+        }
+    }
 }
 
-void sort_transactions(string sort_type, budget *budget_arr, int num_buds, user current_user) {
-    budget user_budget;
-    int user_budget_index = get_user_budget(budget_arr, user_budget, num_buds, current_user);
-
+// Sorts transactions based on sort type - category = 1, date = 2, dollar amount = 3
+void sort_transactions(string sort_type, budget user_budget, int num_buds, user current_user) {
     // Sort by category
-    if(sort_type == "1")
-        alphebatize(user_budget, sort_type);
+    if(sort_type == "1") {
+        for(int i = 0; i < user_budget.num_transactions - 1; i++) {
+            // Last i elements are already in place  
+            for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
+                // If first char of category in transaction is greater than first char of next transaction, swap
+                if(user_budget.t[j].category[0] > user_budget.t[j+1].category[0])
+                    swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
+            }
+        }
+    }    
     // Sort by date
-    else if(sort_type == "2")
-        alphebatize(user_budget, sort_type);
+    else if(sort_type == "2") {
+        for(int i = 0; i < user_budget.num_transactions - 1; i++) {
+            // Last i elements are already in place  
+            for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
+                // If first char of date in transaction is greater than first char of next transaction, swap
+                if(user_budget.t[j].date[0] > user_budget.t[j+1].date[0])
+                    swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
+            }
+        }
+    }   
     // Sort by dollar amount
-    else if(sort_type == "3")
-        alphebatize(user_budget, sort_type);
-
-    /* Only do this once copy budget array to separate budget array
-    // Replace budget in budget array with modified user budget
-    budget_arr[user_budget_index] = user_budget;
-    */
+    else if(sort_type == "3") {
+        for(int i = 0; i < user_budget.num_transactions - 1; i++) {
+            // Last i elements are already in place  
+            for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
+                // If amount in transaction is less than next, swap
+                if(user_budget.t[j].amount < user_budget.t[j+1].amount)
+                    swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
+            }
+        }
+    }
 }
 
 // Finds budget in budget arr with matching id to current user, modifies it, and returns index
@@ -129,31 +197,6 @@ int get_user_budget(budget *budget_arr, budget &user_budget, int num_buds, user 
         }
     }
     return -1;
-}
-
-// Sorts transactions within budget by sort_type
-void alphebatize(budget budget, string sort_type) {
-    for(int i = 0; i < budget.num_transactions - 1; i++) {
-        // Last i elements are already in place  
-        for (int j = 0; j < budget.num_transactions - i - 1; j++) {
-            if(sort_type == "1") {
-                // If first char of category in transaction is greater than first char of next transaction, swap
-                if(budget.t[j].category[0] > budget.t[j+1].category[0])
-                    swap_trans(&budget.t[j], &budget.t[j+1]);
-            }
-            else if(sort_type == "2") {
-                // If first char of date in transaction is greater than first char of next transaction, swap
-                if(budget.t[j].date[0] > budget.t[j+1].date[0])
-                    swap_trans(&budget.t[j], &budget.t[j+1]);
-            }
-            else if(sort_type == "3") {
-                // If amount in transaction is less than next, swap
-                if(budget.t[j].amount < budget.t[j+1].amount)
-                    swap_trans(&budget.t[j], &budget.t[j+1]);
-            }
-        }
-    }
-    print_budget(budget);
 }
 
 // Swaps two transaction objects
@@ -338,8 +381,8 @@ void display_info(user current_user, budget *budget_arr, int num_buds) {
         if(current_user.id == budget_arr[i].id)
             current_balance = budget_arr[i].balance;
     }
-    cout << "Username: " << current_user.name << endl;
+    cout << endl << "Username: " << current_user.name << endl;
     cout << "ID#: " << current_user.id << endl;
-    cout << "Current Account Balance: " << current_balance << endl;
+    cout << "Current Account Balance: $" << current_balance << endl << endl;
     cout << "Enter a sorting option: By category (1), by date (2), by dollar amount (3), or exit the program (4): ";
 }
