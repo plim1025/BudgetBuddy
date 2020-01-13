@@ -1,3 +1,13 @@
+/*
+** Program: BudgetBuddy.cpp
+** Author: Paul Lim
+** Date: 1/12/2020
+** Description: a program that will let your users log in to see their account, 
+** as well as import transactions and allow the users to filter them
+** Input: user/budget files, login info, filtering method
+** Output: Transaction data, either printed or written to a file
+*/
+
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -50,8 +60,8 @@ void display_info(user current_user, budget *budget_arr, int num_buds);
 void sort(budget *budget_arr, int num_buds, user current_user);
 void sort_transactions(string sort_type, budget budget_arr, int num_buds, user current_user);
 int get_user_budget(budget *budget_arr, budget &user_budget, int num_buds, user current_user);
-void alphebatize(budget budget, string sort_type);
 void swap_trans(transaction *xp, transaction *yp);
+
 void print_budget(budget budget);
 void write_budget(ofstream &file, budget *budget_arr, budget user_budget, int num_buds);
 budget* copy_budget_arr(budget *budget_arr, int num_buds);
