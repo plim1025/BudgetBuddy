@@ -145,7 +145,6 @@ void get_budget_data(budget* budget_arr, int num_buds, ifstream &file) {
     int num_transactions;
     struct t;
 
-    transaction **transaction_arr = new transaction *[num_buds];
     // For each transaction
     for(int i = 0; i < num_buds; i++) {
         // Add member variables to each budget
@@ -154,8 +153,7 @@ void get_budget_data(budget* budget_arr, int num_buds, ifstream &file) {
         float balance_rounded = (int)(balance * 100 + .5);
         budget_arr[i].balance = (float)balance_rounded / 100;
         budget_arr[i].num_transactions = num_transactions;
-        transaction_arr[i] = new transaction[budget_arr[i].num_transactions];
-        budget_arr[i].t = transaction_arr[i];
+        budget_arr[i].t = create_transactions(budget_arr[i].num_transactions);
         // Create transaction array
         get_transaction_data(budget_arr[i].t, budget_arr[i].num_transactions, file);
     }
