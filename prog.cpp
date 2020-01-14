@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
     // Sort user info and print to screen or write to file
     sort(budget_arr, num_buds, current_user);
     // Delete heap arrays
-    delete_info(&user_arr, &budget_arr);
+    delete_info(&user_arr, &budget_arr, num_buds);
     // Close file objects
     user_file.close();
     budget_file.close();

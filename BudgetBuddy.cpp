@@ -477,9 +477,13 @@ budget* copy_budget_arr(budget *budget_arr, int num_buds) {
  ** Pre-conditions: take in pointer to user array, num_users, pointer to budget array, num_buds
  ** Post-conditions: deletes user and budget heap arrays
 */
-void delete_info(user **user_arr, budget **budget_arr) {
+void delete_info(user **user_arr, budget **budget_arr, int num_buds) {
     delete [] *user_arr;
     *user_arr = NULL;
+
+    // Delete transaction array for each budget
+    for(int i = 0; i < num_buds; i++)
+        delete [] (*budget_arr[i]).t; 
 
     delete [] *budget_arr;
     *budget_arr = NULL;
