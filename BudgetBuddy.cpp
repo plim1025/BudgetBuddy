@@ -468,3 +468,18 @@ budget* copy_budget_arr(budget *budget_arr, int num_buds) {
     }
     return budget_arr_copy;
 }
+
+/*
+ ** Function: delete_info
+ ** Description: deletes user and budget heap arrays
+ ** Parameters: pointer to user array, num_users, pointer to budget array, num_buds
+ ** Pre-conditions: take in pointer to user array, num_users, pointer to budget array, num_buds
+ ** Post-conditions: deletes user and budget heap arrays
+*/
+void delete_info(user **user_arr, budget **budget_arr) {
+    delete [] *user_arr;
+    *user_arr = NULL;
+
+    delete [] *budget_arr;
+    *budget_arr = NULL;
+}
