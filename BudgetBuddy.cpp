@@ -66,8 +66,10 @@ string get_file_name(string file_type, string file_name) {
 bool test_file(string file_name) {
     ifstream test(file_name);
     if(test) {
+        test.close();
         return true;
     }
+    test.close();
     return false;
 }
 
@@ -344,6 +346,7 @@ void sort(budget *budget_arr, int num_buds, user current_user) {
             write_budget(file, budget_arr, num_buds, user_budget, budget_index);
         }
     }
+    file.close();
 }
 
 /*
