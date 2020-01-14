@@ -64,13 +64,14 @@ string get_file_name(string file_type, string file_name) {
  ** Post-conditions: return true if file name exists, false otherwise
  */
 bool test_file(string file_name) {
-    ifstream test(file_name);
+    ifstream test(file_name.c_str());
     if(test) {
         test.close();
         return true;
+    } else {
+	test.close();
+    	return false;
     }
-    test.close();
-    return false;
 }
 
 /*
@@ -337,7 +338,7 @@ void sort(budget *budget_arr, int num_buds, user current_user) {
             while(true) {
                 cout << "Enter a file name: ";
                 getline(cin, file_name);
-                file.open(file_name);
+                file.open(file_name.c_str());
                 if(!file.is_open())
                     cout << "Bad file name, try again: ";
                 else

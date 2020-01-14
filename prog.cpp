@@ -27,8 +27,8 @@ int main(int argc, char **argv) {
     // Error handling for command line arguments and file existence
     check_valid_input(argc, argv, &user_file_name, &bud_file_name);
     // Create file objects
-    ifstream user_file(user_file_name);
-    ifstream budget_file(bud_file_name);
+    ifstream user_file(user_file_name.c_str());
+    ifstream budget_file(bud_file_name.c_str());
     // Get number of users/budgets from first word of files
     user_file >> num_users;
     budget_file >> num_buds;
