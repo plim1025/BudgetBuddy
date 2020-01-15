@@ -2,7 +2,7 @@
 ** Program: BudgetBuddy.cpp
 ** Author: Paul Lim
 ** Date: 1/12/2020
-** Description: a program that will let your users log in to see their account, 
+** Description: a program that will let your users log in to see their account,
 ** as well as import transactions and allow the users to filter them
 ** Input: user/budget files, login info, filtering method
 ** Output: Transaction data, either printed or written to a file

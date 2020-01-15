@@ -2,7 +2,7 @@
 ** Program: BudgetBuddy.cpp
 ** Author: Paul Lim
 ** Date: 1/12/2020
-** Description: a program that will let your users log in to see their account, 
+** Description: a program that will let your users log in to see their account,
 ** as well as import transactions and allow the users to filter them
 ** Input: user/budget files, login info, filtering method
 ** Output: Transaction data, either printed or written to a file
@@ -36,7 +36,7 @@ void check_valid_input(int argc, char **argv, string *user_file_name, string *bu
 
 /*
  ** Function: get_file_name
- ** Description: if given file name exists, return it, otherwise prompt 
+ ** Description: if given file name exists, return it, otherwise prompt
  ** user for new file name until enter one that exists
  ** Parameters: string for file type (user or budget), and string for file name
  ** Pre-condition: string for file type and file names must be passed
@@ -153,8 +153,8 @@ void get_budget_data(budget* budget_arr, int num_buds, ifstream &file) {
         float balance_rounded = (int)(balance * 100 + .5);
         budget_arr[i].balance = (float)balance_rounded / 100;
         budget_arr[i].num_transactions = num_transactions;
-        budget_arr[i].t = create_transactions(budget_arr[i].num_transactions);
         // Create transaction array
+        budget_arr[i].t = create_transactions(budget_arr[i].num_transactions);
         get_transaction_data(budget_arr[i].t, budget_arr[i].num_transactions, file);
     }
 }
@@ -190,7 +190,7 @@ void get_transaction_data(transaction* transactions_arr, int num_trans, ifstream
  ** Pre-conditions: take in user array and int for number of users
  ** Post-conditions: prompt user to login and error handle bad logins
 */
-user login(user *user_arr, int num_users) {
+user login(user *user_arr, int num_users, budget *budget_arr, int num_buds) {
     user current_user;
     int login_attempts = 0;
     int username_line = -1;
@@ -209,6 +209,7 @@ user login(user *user_arr, int num_users) {
     // Exit program if login attempts exceeded 1
     if(login_attempts > 2) {
         cout << "Too many login attempts. Exiting program..." << endl;
+        delete_info(&user_arr, &budget_arr, num_buds);
         exit(EXIT_FAILURE);
     }
     // Set username into current_user based on line returns from check_login function
@@ -309,7 +310,7 @@ void display_info(user current_user, budget *budget_arr, int num_buds) {
  ** Pre-conditions: take in budget array, num_buds, user
  ** Post-conditions: sorts given transactions and prints/writes to file
 */
-void sort(budget *budget_arr, int num_buds, user current_user) {
+void sort(budget *budget_arr, int num_buds, user *user_arr, user current_user) {
     budget user_budget;
     int budget_index = get_user_budget(budget_arr, user_budget, num_buds, current_user);
 
@@ -318,8 +319,10 @@ void sort(budget *budget_arr, int num_buds, user current_user) {
         getline(cin, sort_type);
         if(sort_type == "1" || sort_type == "2" || sort_type == "3")
             sort_transactions(sort_type, user_budget, num_buds, current_user);
-        else if (sort_type == "4")
+        else if (sort_type == "4") {
+            delete_info(&user_arr, &budget_arr, num_buds);
             exit(EXIT_SUCCESS);
+        }
         else
             cout << "Invalid option. Enter a sorting option: By category (1), by date (2), by dollar amount (3), or exit the program (4): ";
     }
@@ -346,6 +349,16 @@ void sort(budget *budget_arr, int num_buds, user current_user) {
         }
     }
     file.close();
+
+    string sort_again = "";
+    while(sort_again != "1" && sort_again != "2") {
+        cout << "Enter 1 to sort again or 2 to exit the program: ";
+        getline(cin, sort_again);
+    }
+    if(sort_again == "1") {
+        display_info(current_user, budget_arr, num_buds);
+        sort(budget_arr, num_buds, user_arr, current_user);
+    }
 }
 
 /*
@@ -450,6 +463,7 @@ void write_budget(ofstream &file, budget *budget_arr, int num_buds, budget user_
     file << budget_arr_copy[budget_index].id << " " << budget_arr_copy[budget_index].balance << " " << budget_arr_copy[budget_index].num_transactions << endl;
     for(int j = 0; j < budget_arr_copy[budget_index].num_transactions; j++)
         file << budget_arr_copy->t[j].date << " " << budget_arr_copy->t[j].amount << " " << budget_arr_copy->t[j].description << " " << budget_arr_copy->t[j].category << endl;
+    delete [] budget_arr_copy;
 }
 
 /*
@@ -481,7 +495,7 @@ void delete_info(user **user_arr, budget **budget_arr, int num_buds) {
 
     // Delete transaction array for each budget
     for(int i = 0; i < num_buds; i++)
-        delete [] (*budget_arr[i]).t; 
+        delete [] (*budget_arr)[i].t;
 
     delete [] *budget_arr;
     *budget_arr = NULL;
