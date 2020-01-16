@@ -23,6 +23,8 @@ int main(int argc, char **argv) {
     budget *budget_arr;
     string user_file_name;
     string bud_file_name;
+    user current_user;
+    int error_flag;
 
     // Error handling for command line arguments and file existence
     check_valid_input(argc, argv, &user_file_name, &bud_file_name);
@@ -39,11 +41,13 @@ int main(int argc, char **argv) {
     get_user_data(user_arr, num_users, user_file);
     get_budget_data(budget_arr, num_buds, budget_file);
     // Login user and return user info
-    user current_user = login(user_arr, num_users, budget_arr, num_buds);
-    // Display user info
-    display_info(current_user, budget_arr, num_buds);
-    // Sort user info and print to screen or write to file
-    sort(budget_arr, num_buds, user_arr, num_users, current_user);
+    error_flag = login(user_arr, num_users, budget_arr, num_buds, current_user);
+    if(error_flag != -1) {
+        // Display user info
+        display_info(current_user, budget_arr, num_buds);
+        // Sort user info and print to screen or write to file
+        sort(budget_arr, num_buds, user_arr, num_users, current_user);
+    }
     // Delete heap arrays
     delete_info(&user_arr, num_users, &budget_arr, num_buds);
     // Close file objects

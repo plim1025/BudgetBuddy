@@ -50,7 +50,7 @@ void get_user_data(user* user_arr, int num_users, ifstream &file);
 void get_budget_data(budget* budget_arr, int num_buds, ifstream &file);
 void get_transaction_data(transaction* transaction_arr, int trans, ifstream &file);
 
-user login(user *user_arr, int num_users, budget *budget_arr, int num_buds);
+int login(user *user_arr, int num_users, budget *budget_arr, int num_buds, user &current_user);
 int get_id();
 string get_password();
 bool is_int(string word);

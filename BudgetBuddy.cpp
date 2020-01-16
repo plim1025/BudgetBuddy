@@ -193,8 +193,7 @@ void get_transaction_data(transaction* transactions_arr, int num_trans, ifstream
  ** Pre-conditions: take in user array and int for number of users
  ** Post-conditions: prompt user to login and error handle bad logins
 */
-user login(user *user_arr, int num_users, budget *budget_arr, int num_buds) {
-    user current_user;
+int login(user *user_arr, int num_users, budget *budget_arr, int num_buds, user &current_user) {
     int login_attempts = 0;
     int username_line = -1;
     string temp_id;
@@ -212,12 +211,11 @@ user login(user *user_arr, int num_users, budget *budget_arr, int num_buds) {
     // Exit program if login attempts exceeded 1
     if(login_attempts > 2) {
         cout << "Too many login attempts. Exiting program..." << endl;
-        delete_info(&user_arr, num_users, &budget_arr, num_buds);
-        exit(EXIT_FAILURE);
+        return -1;
     }
     // Set username into current_user based on line returns from check_login function
     current_user.name = user_arr[username_line].name;
-    return current_user;
+    return 0;
 }
 
 /*
@@ -324,7 +322,7 @@ void sort(budget *budget_arr, int num_buds, user *user_arr, int num_users, user 
             sort_transactions(sort_type, user_budget, num_buds, current_user);
         else if (sort_type == "4") {
             delete_info(&user_arr, num_users, &budget_arr, num_buds);
-            exit(EXIT_SUCCESS);
+            return;
         }
         else
             cout << "Invalid option. Enter a sorting option: By category (1), by date (2), by dollar amount (3), or exit the program (4): ";
@@ -522,5 +520,3 @@ void delete_info(user **user_arr, int num_users, budget **budget_arr, int num_bu
 
     cout << num_buds << " frees" << endl;
 }
-
-
