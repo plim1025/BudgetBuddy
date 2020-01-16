@@ -83,6 +83,7 @@ bool test_file(string file_name) {
  */
 user* create_users(int num_users) {
     user *arr = new user[num_users];
+    cout << num_users << " allocations" << endl;
     return arr;
 }
 
@@ -95,6 +96,7 @@ user* create_users(int num_users) {
  */
 budget* create_budgets(int num_buds) {
     budget *arr = new budget[num_buds];
+    cout << num_buds << " allocations" << endl;
     return arr;
 }
 
@@ -107,6 +109,7 @@ budget* create_budgets(int num_buds) {
  */
 transaction* create_transactions(int num_trans) {
     transaction *arr = new transaction[num_trans];
+    cout << num_trans << " allocations" << endl;
     return arr;
 }
 
@@ -209,7 +212,7 @@ user login(user *user_arr, int num_users, budget *budget_arr, int num_buds) {
     // Exit program if login attempts exceeded 1
     if(login_attempts > 2) {
         cout << "Too many login attempts. Exiting program..." << endl;
-        delete_info(&user_arr, &budget_arr, num_buds);
+        delete_info(&user_arr, num_users, &budget_arr, num_buds);
         exit(EXIT_FAILURE);
     }
     // Set username into current_user based on line returns from check_login function
@@ -310,7 +313,7 @@ void display_info(user current_user, budget *budget_arr, int num_buds) {
  ** Pre-conditions: take in budget array, num_buds, user
  ** Post-conditions: sorts given transactions and prints/writes to file
 */
-void sort(budget *budget_arr, int num_buds, user *user_arr, user current_user) {
+void sort(budget *budget_arr, int num_buds, user *user_arr, int num_users, user current_user) {
     budget user_budget;
     int budget_index = get_user_budget(budget_arr, user_budget, num_buds, current_user);
 
@@ -320,13 +323,34 @@ void sort(budget *budget_arr, int num_buds, user *user_arr, user current_user) {
         if(sort_type == "1" || sort_type == "2" || sort_type == "3")
             sort_transactions(sort_type, user_budget, num_buds, current_user);
         else if (sort_type == "4") {
-            delete_info(&user_arr, &budget_arr, num_buds);
+            delete_info(&user_arr, num_users, &budget_arr, num_buds);
             exit(EXIT_SUCCESS);
         }
         else
             cout << "Invalid option. Enter a sorting option: By category (1), by date (2), by dollar amount (3), or exit the program (4): ";
     }
 
+    print_or_write(budget_arr, num_buds, user_budget, budget_index);
+
+    string sort_again = "";
+    while(sort_again != "1" && sort_again != "2") {
+        cout << endl << "Enter 1 to sort again or 2 to exit the program: ";
+        getline(cin, sort_again);
+    }
+    if(sort_again == "1") {
+        display_info(current_user, budget_arr, num_buds);
+        sort(budget_arr, num_buds, user_arr, num_users, current_user);
+    }
+}
+
+/*
+ ** Function: write_or_print
+ ** Description: writes or prints user budget to a file
+ ** Parameters: budget array, num_buds, user_budget, budget_index
+ ** Pre-conditions: take in budget array, num_buds, user, budget_index
+ ** Post-conditions: prints/writes user budget to a file
+*/
+void print_or_write(budget *budget_arr, int num_buds, budget user_budget, int budget_index) {
     string write_or_print = "0";
     ofstream file;
     while(write_or_print != "1" && write_or_print != "2") {
@@ -349,16 +373,6 @@ void sort(budget *budget_arr, int num_buds, user *user_arr, user current_user) {
         }
     }
     file.close();
-
-    string sort_again = "";
-    while(sort_again != "1" && sort_again != "2") {
-        cout << "Enter 1 to sort again or 2 to exit the program: ";
-        getline(cin, sort_again);
-    }
-    if(sort_again == "1") {
-        display_info(current_user, budget_arr, num_buds);
-        sort(budget_arr, num_buds, user_arr, current_user);
-    }
 }
 
 /*
@@ -475,6 +489,7 @@ void write_budget(ofstream &file, budget *budget_arr, int num_buds, budget user_
 */
 budget* copy_budget_arr(budget *budget_arr, int num_buds) {
     budget *budget_arr_copy = new budget[num_buds];
+    cout << num_buds << " allocations" << endl;
     for(int i = 0; i < num_buds; i++) {
         budget temp = budget_arr[i];
         budget_arr_copy[i] = temp;
@@ -489,14 +504,23 @@ budget* copy_budget_arr(budget *budget_arr, int num_buds) {
  ** Pre-conditions: take in pointer to user array, num_users, pointer to budget array, num_buds
  ** Post-conditions: deletes user and budget heap arrays
 */
-void delete_info(user **user_arr, budget **budget_arr, int num_buds) {
+void delete_info(user **user_arr, int num_users, budget **budget_arr, int num_buds) {
+
     delete [] *user_arr;
     *user_arr = NULL;
+    cout << num_users << " frees" << endl;
 
     // Delete transaction array for each budget
-    for(int i = 0; i < num_buds; i++)
+    for(int i = 0; i < num_buds; i++) {
+        cout << (*budget_arr)[i].num_transactions << " frees" << endl;
         delete [] (*budget_arr)[i].t;
+        (*budget_arr)[i].t = NULL;
+    }
 
     delete [] *budget_arr;
     *budget_arr = NULL;
+
+    cout << num_buds << " frees" << endl;
 }
+
+

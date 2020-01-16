@@ -12,60 +12,42 @@
 #include <fstream>
 #include <cstdlib>
 #include <sstream>
- 
-#ifndef BUDGET_BUDDY_H
-#define BUDGET_BUDDY_H
+#include "BudgetBuddy.h"
 
 using namespace std;
 
-struct user {
-    string name;
-    int id;
-    string password;
-};
+int main(int argc, char **argv) {
+    int num_users;
+    int num_buds;
+    user *user_arr;
+    budget *budget_arr;
+    string user_file_name;
+    string bud_file_name;
 
-struct budget {
-    int id;
-    float balance;
-    int num_transactions;
-    struct transaction *t;
-};
-
-struct transaction {
-    float amount;
-    string date;
-    string category;
-    string description;
-};
-
-void check_valid_input(int argc, char **argv, string *user_file_name, string *bud_file_name);
-string get_file_name(string file_type, string file_name = "");
-bool test_file(string file);
-
-user* create_users(int num_users);
-budget* create_budgets(int num_buds);
-transaction* create_transactions(int num_trans);
-
-void get_user_data(user* user_arr, int num_users, ifstream &file);
-void get_budget_data(budget* budget_arr, int num_buds, ifstream &file);
-void get_transaction_data(transaction* transaction_arr, int trans, ifstream &file);
-
-user login(user *user_arr, int num_users, budget *budget_arr, int num_buds);
-int get_id();
-string get_password();
-bool is_int(string word);
-int check_login(user current_user, user *user_arr, int num_users);
-void display_info(user current_user, budget *budget_arr, int num_buds);
-
-void sort(budget *budget_arr, int num_buds, user *user_arr, user current_user);
-void sort_transactions(string sort_type, budget budget_arr, int num_buds, user current_user);
-int get_user_budget(budget *budget_arr, budget &user_budget, int num_buds, user current_user);
-void swap_trans(transaction *xp, transaction *yp);
-
-void print_budget(budget budget);
-void write_budget(ofstream &file, budget *budget_arr, int num_buds, budget user_budget, int budget_index);
-budget* copy_budget_arr(budget *budget_arr, int num_buds);
-
-void delete_info(user **user_arr, budget **budget_arr, int num_buds);
-
-#endif
+    // Error handling for command line arguments and file existence
+    check_valid_input(argc, argv, &user_file_name, &bud_file_name);
+    // Create file objects
+    ifstream user_file(user_file_name.c_str());
+    ifstream budget_file(bud_file_name.c_str());
+    // Get number of users/budgets from first word of files
+    user_file >> num_users;
+    budget_file >> num_buds;
+    // Create array of users/budgets
+    user_arr = create_users(num_users);
+    budget_arr = create_budgets(num_buds);
+    // Parse user/budget data and store in user/budget array
+    get_user_data(user_arr, num_users, user_file);
+    get_budget_data(budget_arr, num_buds, budget_file);
+    // Login user and return user info
+    user current_user = login(user_arr, num_users, budget_arr, num_buds);
+    // Display user info
+    display_info(current_user, budget_arr, num_buds);
+    // Sort user info and print to screen or write to file
+    sort(budget_arr, num_buds, user_arr, num_users, current_user);
+    // Delete heap arrays
+    delete_info(&user_arr, num_users, &budget_arr, num_buds);
+    // Close file objects
+    user_file.close();
+    budget_file.close();
+    return 0;
+}
