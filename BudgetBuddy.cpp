@@ -421,9 +421,16 @@ void sort_by_category(budget *budget_arr, int budget_index) {
     for(int i = 0; i < user_budget.num_transactions - 1; i++) {
         // Last i elements are already in place
         for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
-            // If first char of category in transaction is greater than first char of next transaction, swap
-            if(user_budget.t[j].category[0] > user_budget.t[j+1].category[0])
-                swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
+            for(int k = 0; k < user_budget.t[j].category.length() - 1; k++) {
+                // If first char of category in transaction is greater than first char of next transaction, swap
+                if(user_budget.t[j].category[k] > user_budget.t[j+1].category[k]) {
+                    swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
+                    break;
+                // If first char of category in transaction is less than first char of next transaction, keep and break
+                } else if (user_budget.t[j].category[k] < user_budget.t[j+1].category[k])
+                    break;
+                // Else the chars are the same so keep searching
+            }
         }
     }
 }
@@ -440,9 +447,33 @@ void sort_by_date(budget *budget_arr, int budget_index) {
     for(int i = 0; i < user_budget.num_transactions - 1; i++) {
         // Last i elements are already in place
         for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
-            // If first char of date in transaction is greater than first char of next transaction, swap
-            if(user_budget.t[j].date[0] > user_budget.t[j+1].date[0])
-                swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
+            int month = atoi(user_budget.t[j].date.substr(0, 2).c_str());
+            int day = atoi(user_budget.t[j].date.substr(3, 2).c_str());
+            int year = atoi(user_budget.t[j].date.substr(6, 4).c_str());
+            int sec_month = atoi(user_budget.t[j+1].date.substr(0, 2).c_str());
+            int sec_day = atoi(user_budget.t[j+1].date.substr(3, 2).c_str());
+            int sec_year = atoi(user_budget.t[j+1].date.substr(6, 4).c_str());
+            while(true) {
+                // If first year of first transaction is greater than year of second transaction, swap
+                if(year > sec_year) {
+                    swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
+                    break;
+                }
+                else if(year < sec_year)
+                    break;
+                else if (month > sec_month) {
+                    swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
+                    break;
+                }
+                else if (month < sec_month)
+                    break;
+                else if (day > sec_day) {
+                    swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
+                    break;
+                }
+                else
+                    break;
+            }
         }
     }
 }
