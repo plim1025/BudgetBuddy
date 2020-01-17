@@ -309,20 +309,18 @@ void display_info(user current_user, budget *budget_arr, int num_buds) {
  ** Post-conditions: sorts given transactions and prints/writes to file
 */
 void sort(budget *budget_arr, int num_buds, user *user_arr, int num_users, user current_user) {
-    budget user_budget;
-    int budget_index = get_user_budget(budget_arr, user_budget, num_buds, current_user);
+    int budget_index = get_user_budget(budget_arr, num_buds, current_user);
 
     string sort_type = get_sort_type();
     if(sort_type == "1" || sort_type == "2" || sort_type == "3")
-        sort_transactions(sort_type, user_budget, num_buds, current_user);
+        sort_transactions(sort_type, budget_arr, budget_index, num_buds, current_user);
     else if (sort_type == "4") {
-        delete_info(&user_arr, num_users, &budget_arr, num_buds);
         return;
     }
     else
         cout << "Invalid option. Enter a sorting option: By category (1), by date (2), by dollar amount (3), or exit the program (4): ";
 
-    print_or_write(budget_arr, num_buds, user_budget, budget_index);
+    print_or_write(budget_arr, num_buds, budget_index);
 
     string sort_or_exit = get_sort_or_exit();
 
@@ -370,14 +368,14 @@ string get_sort_or_exit() {
  ** Pre-conditions: take in budget array, num_buds, user, budget_index
  ** Post-conditions: prints/writes user budget to a file
 */
-void print_or_write(budget *budget_arr, int num_buds, budget user_budget, int budget_index) {
+void print_or_write(budget *budget_arr, int num_buds, int budget_index) {
     string write_or_print = "0";
     ofstream file;
     while(write_or_print != "1" && write_or_print != "2") {
         cout << "Do you want to print (1) these changes or write them to a new file (2)? ";
         getline(cin, write_or_print);
         if(write_or_print == "1")
-            print_budget(user_budget);
+            print_budget(budget_arr, budget_index);
         else if(write_or_print == "2") {
             string file_name = "";
             while(true) {
@@ -389,7 +387,7 @@ void print_or_write(budget *budget_arr, int num_buds, budget user_budget, int bu
                 else
                     break;
             }
-            write_budget(file, budget_arr, num_buds, user_budget, budget_index);
+            write_budget(file, budget_arr, num_buds, budget_index);
         }
     }
     file.close();
@@ -402,13 +400,13 @@ void print_or_write(budget *budget_arr, int num_buds, budget user_budget, int bu
  ** Pre-conditions: take in string, budget, num_buds, user
  ** Post-conditions: sorts transactions based on sort type - category = 1, date = 2, dollar amount = 3
 */
-void sort_transactions(string sort_type, budget user_budget, int num_buds, user current_user) {
+void sort_transactions(string sort_type, budget *budget_arr, int budget_index, int num_buds, user current_user) {
     if(sort_type == "1")
-        sort_by_category(user_budget);
+        sort_by_category(budget_arr, budget_index);
     else if(sort_type == "2")
-        sort_by_date(user_budget);
+        sort_by_date(budget_arr, budget_index);
     else if(sort_type == "3")
-        sort_by_amount(user_budget);    
+        sort_by_amount(budget_arr, budget_index);
 }
 
 /*
@@ -418,7 +416,8 @@ void sort_transactions(string sort_type, budget user_budget, int num_buds, user 
  ** Pre-conditions: take in budget
  ** Post-conditions: sort transactions by category
 */
-void sort_by_category(budget user_budget) {
+void sort_by_category(budget *budget_arr, int budget_index) {
+    budget user_budget = budget_arr[budget_index];
     for(int i = 0; i < user_budget.num_transactions - 1; i++) {
         // Last i elements are already in place
         for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
@@ -427,7 +426,7 @@ void sort_by_category(budget user_budget) {
                 swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
         }
     }
-} 
+}
 
 /*
  ** Function: sort_by_date
@@ -436,7 +435,8 @@ void sort_by_category(budget user_budget) {
  ** Pre-conditions: take in budget
  ** Post-conditions: sort transactions by date
 */
-void sort_by_date(budget user_budget) {
+void sort_by_date(budget *budget_arr, int budget_index) {
+    budget user_budget = budget_arr[budget_index];
     for(int i = 0; i < user_budget.num_transactions - 1; i++) {
         // Last i elements are already in place
         for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
@@ -454,7 +454,8 @@ void sort_by_date(budget user_budget) {
  ** Pre-conditions: take in budget
  ** Post-conditions: sort transactions by amount
 */
-void sort_by_amount(budget user_budget) {
+void sort_by_amount(budget *budget_arr, int budget_index) {
+    budget user_budget = budget_arr[budget_index];
     for(int i = 0; i < user_budget.num_transactions - 1; i++) {
         // Last i elements are already in place
         for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
@@ -467,15 +468,14 @@ void sort_by_amount(budget user_budget) {
 
 /*
  ** Function: get_user_budget
- ** Description: finds budget in budget arr with matching id to current user, modifies it, and returns index
+ ** Description: finds budget in budget arr with matching id to current user and returns index
  ** Parameters: budget array, user budget, num_buds, current user
  ** Pre-conditions: take in budget array, user budget, num_buds, current user
- ** Post-conditions: finds budget in budget arr with matching id to current user, modifies it, and returns index
+ ** Post-conditions: finds budget in budget arr with matching id to current user and returns index
 */
-int get_user_budget(budget *budget_arr, budget &user_budget, int num_buds, user current_user) {
+int get_user_budget(budget *budget_arr, int num_buds, user current_user) {
     for(int i = 0; i < num_buds; i++) {
         if(budget_arr[i].id == current_user.id) {
-            user_budget = budget_arr[i];
             return i;
         }
     }
@@ -502,10 +502,10 @@ void swap_trans(transaction *xp, transaction *yp) {
  ** Pre-conditions: take in budget object
  ** Post-conditions: prints given budget array to screen
 */
-void print_budget(budget budget) {
+void print_budget(budget *budget_arr, int budget_index) {
     cout << endl;
-    for(int i = 0; i < budget.num_transactions; i++)
-        cout << budget.t[i].date << " " << budget.t[i].amount << " " << budget.t[i].description << " " << budget.t[i].category << endl;
+    for(int i = 0; i < budget_arr[budget_index].num_transactions; i++)
+        cout << budget_arr[budget_index].t[i].date << " " << budget_arr[budget_index].t[i].amount << " " << budget_arr[budget_index].t[i].description << " " << budget_arr[budget_index].t[i].category << endl;
 }
 
 /*
@@ -515,11 +515,11 @@ void print_budget(budget budget) {
  ** Pre-conditions: take in file object, budget array, num_buds, user budget, budget index
  ** Post-conditions: write given budget to file
 */
-void write_budget(ofstream &file, budget *budget_arr, int num_buds, budget user_budget, int budget_index) {
+void write_budget(ofstream &file, budget *budget_arr, int num_buds, int budget_index) {
     // Write copied budget array into file
     file << budget_arr[budget_index].id << " " << budget_arr[budget_index].balance << " " << budget_arr[budget_index].num_transactions << endl;
     for(int j = 0; j < budget_arr[budget_index].num_transactions; j++)
-        file << budget_arr->t[j].date << " " << budget_arr->t[j].amount << " " << budget_arr->t[j].description << " " << budget_arr->t[j].category << endl;
+        file << budget_arr[budget_index].t[j].date << " " << budget_arr[budget_index].t[j].amount << " " << budget_arr[budget_index].t[j].description << " " << budget_arr[budget_index].t[j].category << endl;
 }
 
 
