@@ -83,7 +83,6 @@ bool test_file(string file_name) {
  */
 user* create_users(int num_users) {
     user *arr = new user[num_users];
-    cout << num_users << " allocations" << endl;
     return arr;
 }
 
@@ -96,7 +95,6 @@ user* create_users(int num_users) {
  */
 budget* create_budgets(int num_buds) {
     budget *arr = new budget[num_buds];
-    cout << num_buds << " allocations" << endl;
     return arr;
 }
 
@@ -109,7 +107,6 @@ budget* create_budgets(int num_buds) {
  */
 transaction* create_transactions(int num_trans) {
     transaction *arr = new transaction[num_trans];
-    cout << num_trans << " allocations" << endl;
     return arr;
 }
 
@@ -485,17 +482,13 @@ void delete_info(user **user_arr, int num_users, budget **budget_arr, int num_bu
 
     delete [] *user_arr;
     *user_arr = NULL;
-    cout << num_users << " frees" << endl;
 
     // Delete transaction array for each budget
     for(int i = 0; i < num_buds; i++) {
-        cout << (*budget_arr)[i].num_transactions << " frees" << endl;
         delete [] (*budget_arr)[i].t;
         (*budget_arr)[i].t = NULL;
     }
 
     delete [] *budget_arr;
     *budget_arr = NULL;
-
-    cout << num_buds << " frees" << endl;
 }
