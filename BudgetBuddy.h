@@ -65,7 +65,6 @@ void swap_trans(transaction *xp, transaction *yp);
 
 void print_budget(budget budget);
 void write_budget(ofstream &file, budget *budget_arr, int num_buds, budget user_budget, int budget_index);
-budget* copy_budget_arr(budget *budget_arr, int num_buds);
 
 void delete_info(user **user_arr, int num_users, budget **budget_arr, int num_buds);
 

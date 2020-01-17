@@ -467,33 +467,12 @@ void print_budget(budget budget) {
  ** Post-conditions: write given budget to file
 */
 void write_budget(ofstream &file, budget *budget_arr, int num_buds, budget user_budget, int budget_index) {
-    // Make copy of budget array
-    budget *budget_arr_copy = copy_budget_arr(budget_arr, num_buds);
-    // Swap modified user_budget into copy of budget array
-    budget_arr[budget_index] = user_budget;
     // Write copied budget array into file
-    file << budget_arr_copy[budget_index].id << " " << budget_arr_copy[budget_index].balance << " " << budget_arr_copy[budget_index].num_transactions << endl;
-    for(int j = 0; j < budget_arr_copy[budget_index].num_transactions; j++)
-        file << budget_arr_copy->t[j].date << " " << budget_arr_copy->t[j].amount << " " << budget_arr_copy->t[j].description << " " << budget_arr_copy->t[j].category << endl;
-    delete [] budget_arr_copy;
+    file << budget_arr[budget_index].id << " " << budget_arr[budget_index].balance << " " << budget_arr[budget_index].num_transactions << endl;
+    for(int j = 0; j < budget_arr[budget_index].num_transactions; j++)
+        file << budget_arr->t[j].date << " " << budget_arr->t[j].amount << " " << budget_arr->t[j].description << " " << budget_arr->t[j].category << endl;
 }
 
-/*
- ** Function: copy_budget_arr
- ** Description: returns copy of given budget_arr
- ** Parameters: budget array, num_buds
- ** Pre-conditions: take in budget array, num_buds
- ** Post-conditions: returns copy of given budget_arr
-*/
-budget* copy_budget_arr(budget *budget_arr, int num_buds) {
-    budget *budget_arr_copy = new budget[num_buds];
-    cout << num_buds << " allocations" << endl;
-    for(int i = 0; i < num_buds; i++) {
-        budget temp = budget_arr[i];
-        budget_arr_copy[i] = temp;
-    }
-    return budget_arr_copy;
-}
 
 /*
  ** Function: delete_info
