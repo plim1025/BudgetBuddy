@@ -83,7 +83,6 @@ bool test_file(string file_name) {
  */
 user* create_users(int num_users) {
     user *arr = new user[num_users];
-    cout << num_users << " allocations" << endl;
     return arr;
 }
 
@@ -96,7 +95,6 @@ user* create_users(int num_users) {
  */
 budget* create_budgets(int num_buds) {
     budget *arr = new budget[num_buds];
-    cout << num_buds << " allocations" << endl;
     return arr;
 }
 
@@ -109,7 +107,6 @@ budget* create_budgets(int num_buds) {
  */
 transaction* create_transactions(int num_trans) {
     transaction *arr = new transaction[num_trans];
-    cout << num_trans << " allocations" << endl;
     return arr;
 }
 
@@ -315,30 +312,55 @@ void sort(budget *budget_arr, int num_buds, user *user_arr, int num_users, user 
     budget user_budget;
     int budget_index = get_user_budget(budget_arr, user_budget, num_buds, current_user);
 
-    string sort_type = "0";
-    while(sort_type != "1" && sort_type != "2" && sort_type != "3" && sort_type != "4") {
-        getline(cin, sort_type);
-        if(sort_type == "1" || sort_type == "2" || sort_type == "3")
-            sort_transactions(sort_type, user_budget, num_buds, current_user);
-        else if (sort_type == "4") {
-            delete_info(&user_arr, num_users, &budget_arr, num_buds);
-            return;
-        }
-        else
-            cout << "Invalid option. Enter a sorting option: By category (1), by date (2), by dollar amount (3), or exit the program (4): ";
+    string sort_type = get_sort_type();
+    if(sort_type == "1" || sort_type == "2" || sort_type == "3")
+        sort_transactions(sort_type, user_budget, num_buds, current_user);
+    else if (sort_type == "4") {
+        delete_info(&user_arr, num_users, &budget_arr, num_buds);
+        return;
     }
+    else
+        cout << "Invalid option. Enter a sorting option: By category (1), by date (2), by dollar amount (3), or exit the program (4): ";
 
     print_or_write(budget_arr, num_buds, user_budget, budget_index);
 
-    string sort_again = "";
-    while(sort_again != "1" && sort_again != "2") {
-        cout << endl << "Enter 1 to sort again or 2 to exit the program: ";
-        getline(cin, sort_again);
-    }
-    if(sort_again == "1") {
+    string sort_or_exit = get_sort_or_exit();
+
+    if(sort_or_exit == "1") {
         display_info(current_user, budget_arr, num_buds);
         sort(budget_arr, num_buds, user_arr, num_users, current_user);
     }
+}
+
+/*
+ ** Function: get_sort_type
+ ** Description: gets sort type as string from user
+ ** Parameters: none
+ ** Pre-conditions: none
+ ** Post-conditions: return a string that describes sorting type
+*/
+string get_sort_type() {
+    string sort_type = "";
+    while(sort_type != "1" && sort_type != "2" && sort_type != "3" && sort_type != "4") {
+        getline(cin, sort_type);
+    }
+    return sort_type;
+}
+
+/*
+ ** Function: get_sort_or_exit
+ ** Description: gets either sort or exit as string from user
+ ** Parameters: none
+ ** Pre-conditions: none
+ ** Post-conditions: return a string that describes either sort again or exit
+*/
+string get_sort_or_exit() {
+    string sort_or_exit = "";
+    while(sort_or_exit != "1" && sort_or_exit != "2") {
+        cout << endl << "Enter 1 to sort again or 2 to exit the program: ";
+        getline(cin, sort_or_exit);
+    }
+    return sort_or_exit;
 }
 
 /*
@@ -381,37 +403,64 @@ void print_or_write(budget *budget_arr, int num_buds, budget user_budget, int bu
  ** Post-conditions: sorts transactions based on sort type - category = 1, date = 2, dollar amount = 3
 */
 void sort_transactions(string sort_type, budget user_budget, int num_buds, user current_user) {
-    // Sort by category
-    if(sort_type == "1") {
-        for(int i = 0; i < user_budget.num_transactions - 1; i++) {
-            // Last i elements are already in place
-            for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
-                // If first char of category in transaction is greater than first char of next transaction, swap
-                if(user_budget.t[j].category[0] > user_budget.t[j+1].category[0])
-                    swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
-            }
+    if(sort_type == "1")
+        sort_by_category(user_budget);
+    else if(sort_type == "2")
+        sort_by_date(user_budget);
+    else if(sort_type == "3")
+        sort_by_amount(user_budget);    
+}
+
+/*
+ ** Function: sort_by_category
+ ** Description: sorts transactions by category
+ ** Parameters: budget user_budget
+ ** Pre-conditions: take in budget
+ ** Post-conditions: sort transactions by category
+*/
+void sort_by_category(budget user_budget) {
+    for(int i = 0; i < user_budget.num_transactions - 1; i++) {
+        // Last i elements are already in place
+        for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
+            // If first char of category in transaction is greater than first char of next transaction, swap
+            if(user_budget.t[j].category[0] > user_budget.t[j+1].category[0])
+                swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
         }
     }
-    // Sort by date
-    else if(sort_type == "2") {
-        for(int i = 0; i < user_budget.num_transactions - 1; i++) {
-            // Last i elements are already in place
-            for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
-                // If first char of date in transaction is greater than first char of next transaction, swap
-                if(user_budget.t[j].date[0] > user_budget.t[j+1].date[0])
-                    swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
-            }
+} 
+
+/*
+ ** Function: sort_by_date
+ ** Description: sorts transactions by date
+ ** Parameters: budget user_budget
+ ** Pre-conditions: take in budget
+ ** Post-conditions: sort transactions by date
+*/
+void sort_by_date(budget user_budget) {
+    for(int i = 0; i < user_budget.num_transactions - 1; i++) {
+        // Last i elements are already in place
+        for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
+            // If first char of date in transaction is greater than first char of next transaction, swap
+            if(user_budget.t[j].date[0] > user_budget.t[j+1].date[0])
+                swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
         }
     }
-    // Sort by dollar amount
-    else if(sort_type == "3") {
-        for(int i = 0; i < user_budget.num_transactions - 1; i++) {
-            // Last i elements are already in place
-            for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
-                // If amount in transaction is less than next, swap
-                if(user_budget.t[j].amount < user_budget.t[j+1].amount)
-                    swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
-            }
+}
+
+/*
+ ** Function: sort_by_amount
+ ** Description: sorts transactions by amount
+ ** Parameters: budget user_budget
+ ** Pre-conditions: take in budget
+ ** Post-conditions: sort transactions by amount
+*/
+void sort_by_amount(budget user_budget) {
+    for(int i = 0; i < user_budget.num_transactions - 1; i++) {
+        // Last i elements are already in place
+        for (int j = 0; j < user_budget.num_transactions - i - 1; j++) {
+            // If amount in transaction is less than next, swap
+            if(user_budget.t[j].amount < user_budget.t[j+1].amount)
+                swap_trans(&user_budget.t[j], &user_budget.t[j+1]);
         }
     }
 }
@@ -485,17 +534,13 @@ void delete_info(user **user_arr, int num_users, budget **budget_arr, int num_bu
 
     delete [] *user_arr;
     *user_arr = NULL;
-    cout << num_users << " frees" << endl;
 
     // Delete transaction array for each budget
     for(int i = 0; i < num_buds; i++) {
-        cout << (*budget_arr)[i].num_transactions << " frees" << endl;
         delete [] (*budget_arr)[i].t;
         (*budget_arr)[i].t = NULL;
     }
 
     delete [] *budget_arr;
     *budget_arr = NULL;
-
-    cout << num_buds << " frees" << endl;
 }

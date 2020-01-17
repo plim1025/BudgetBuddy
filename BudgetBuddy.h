@@ -58,8 +58,12 @@ int check_login(user current_user, user *user_arr, int num_users);
 void display_info(user current_user, budget *budget_arr, int num_buds);
 
 void sort(budget *budget_arr, int num_buds, user *user_arr, int num_users, user current_user);
+string get_sort_type();
 void print_or_write(budget *budget_arr, int num_buds, budget user_budget, int budget_index);
 void sort_transactions(string sort_type, budget budget_arr, int num_buds, user current_user);
+void sort_by_category(budget user_budget);
+void sort_by_date(budget user_budget);
+void sort_by_amount(budget user_budget);
 int get_user_budget(budget *budget_arr, budget &user_budget, int num_buds, user current_user);
 void swap_trans(transaction *xp, transaction *yp);
 
